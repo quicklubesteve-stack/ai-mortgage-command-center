@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-elevated: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-subtle: #e2e8f0;
+  }
+
+  .dark {
+    --bg-primary: #060b16;
+    --bg-surface: #0c1426;
+    --bg-elevated: #131f38;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-subtle: #1e293b;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

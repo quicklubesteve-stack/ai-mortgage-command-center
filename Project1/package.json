@@ -1,0 +1,71 @@
+{
+  "name": "ai-mortgage-assistant",
+  "version": "1.0.0",
+  "description": "AI Mortgage Assistant - Intelligent Deal Filtration & Human Underwriting Cockpit",
+  "main": "electron-main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test/run-tests.js",
+    "desktop": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis"
+  },
+  "keywords": [
+    "mortgage",
+    "chatbot",
+    "ai-agent",
+    "deal-filter",
+    "underwriting",
+    "human-in-the-loop",
+    "loan-officer",
+    "desktop-app",
+    "windows-11"
+  ],
+  "author": "Steve Underwriting",
+  "license": "MIT",
+  "build": {
+    "appId": "com.mortgage.ai.assistant",
+    "productName": "AI Mortgage Assistant",
+    "copyright": "Copyright © 2026 Steve Underwriting",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "server.js",
+      "electron-main.js",
+      "preload.js",
+      "secure-store.js",
+      "public/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI Mortgage Assistant",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0"
+  }
+}

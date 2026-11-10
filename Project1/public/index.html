@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canadian AI Mortgage Assistant & Underwriting Cockpit — Intake & Steve's Desk</title>
+  <meta name="description" content="AI Mortgage Assistant for the Canadian Mortgage Market (OSFI B-20 Stress Test, CMHC Insurance, Equifax/TransUnion 300-900, Big Six Banks & Monolines). Fill applications, get credit score-based lender suggestions, and route to Steve for binding authorization.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍁</text></svg>">
+</head>
+<body>
+
+  <!-- Mandatory Compliance & Authorization Banner -->
+  <header class="compliance-banner" id="complianceBanner">
+    <span class="compliance-badge-icon">🍁 OSFI B-20 GOVERNANCE PROTOCOL</span>
+    <span>🚨 <strong>LEGAL UNDERWRITING GUARDRAIL:</strong> The AI Agent is strictly prohibited from approving or denying mortgage applications.</span>
+    <span class="officer-lock-tag">Exclusive Authority: Steve (Licensed Canadian Underwriter)</span>
+  </header>
+
+  <!-- App Header & Canadian Province Selector -->
+  <nav class="app-header" id="appNavbar">
+    <div class="brand-section">
+      <div class="brand-logo" id="brandLogo">🍁</div>
+      <div class="brand-text">
+        <h1 id="appTitle">Canadian AI Mortgage Assistant</h1>
+        <p id="appSubtitle">OSFI B-20 Qualifying • CMHC Insurance • Equifax/TransUnion Scoring • Steve's Underwriting Desk</p>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Canadian Province Dropdown Selector -->
+      <div class="market-selector-container">
+        <label for="selectCanadianProvince" class="market-label">Province:</label>
+        <select id="selectCanadianProvince" class="market-select" aria-label="Select Canadian Province">
+          <option value="ON" selected>🍁 Ontario (ON - CAD $)</option>
+          <option value="BC">🏔️ British Columbia (BC - CAD $)</option>
+          <option value="AB">🤠 Alberta (AB - CAD $)</option>
+          <option value="QC">⚜️ Quebec (QC - CAD $)</option>
+          <option value="PRAIRIES_ATLANTIC">🌊 Prairies & Atlantic (CAD $)</option>
+        </select>
+      </div>
+
+      <div class="profile-pill" id="activeProfilePill">
+        <span id="navMarketFlag">🍁</span>
+        <span class="metric" id="navLoanSummary">$702k CAD / 90% LTV (CMHC)</span>
+      </div>
+
+      <button class="btn-desk-trigger" id="btnOpenDesk" title="Open Steve's Human Underwriting Authorization Desk">
+        <span>👤 Steve's Desk</span>
+        <span class="queue-counter" id="queueBadgeCount">2</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Dual-Pane Cockpit Layout -->
+  <main class="cockpit-container" id="mainCockpit">
+    
+    <!-- LEFT PANE: Conversational AI Agent Chatbot -->
+    <section class="chat-pane" id="chatbotPane" aria-label="Canadian Mortgage Agent Chatbot">
+      <div class="pane-header">
+        <div class="agent-meta">
+          <div class="agent-avatar" id="agentAvatarIcon">
+            🤖
+            <div class="pulse-indicator" title="Agent Online & OSFI B-20 Monitoring Active"></div>
+          </div>
+          <div class="agent-title">
+            <h2 id="agentNameLabel">Canadian Mortgage Intelligence Agent</h2>
+            <span id="agentStatusLabel">OSFI B-20 Qualifying & Credit Score Lender Match</span>
+          </div>
+        </div>
+
+        <div class="compliance-status-tag" id="agentComplianceBadge">
+          <span>🔒 Decision Authority: 0% (Intake & Qualification Only)</span>
+        </div>
+      </div>
+
+      <!-- Chat Messages Scroll Area -->
+      <div class="chat-messages" id="chatMessagesContainer" role="log" aria-live="polite">
+        <!-- Messages injected dynamically via app.js -->
+      </div>
+
+      <!-- Quick Action & Scenario Pills -->
+      <div class="scenario-pills-bar" id="scenarioPillsBar">
+        <button class="scenario-pill pill-action-primary" id="pillOpenApplication" data-action="open-application">
+          <span>📝 Fill Mortgage Application</span>
+        </button>
+        <button class="scenario-pill pill-action-secondary" id="pillSuggestLenders" data-action="suggest-lenders">
+          <span>⭐ Suggest Lenders by Credit Score</span>
+        </button>
+        <button class="scenario-pill" id="pillScenarioToronto" data-scenario="toronto">
+          <span>🍁 Toronto First-Time Buyer (745 Equifax)</span>
+        </button>
+        <button class="scenario-pill" id="pillScenarioVancouver" data-scenario="vancouver">
+          <span>🏔️ Vancouver Conventional ($1.25M)</span>
+        </button>
+        <button class="scenario-pill" id="pillScenarioCalgary" data-scenario="calgary">
+          <span>🤠 Calgary Self-Employed (EQ Bank Alt)</span>
+        </button>
+        <button class="scenario-pill" id="pillScenarioMontreal" data-scenario="montreal">
+          <span>⚜️ Montreal Smart Fixed (BMO)</span>
+        </button>
+        <button class="scenario-pill pill-guardrail" id="pillTestGuardrail" data-scenario="test-guardrail" title="Test the agent's strict refusal to approve or deny mortgage applications">
+          <span>🛑 Test Steve Guardrail</span>
+        </button>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-area" id="chatInputArea">
+        <div class="input-container">
+          <input 
+            type="text" 
+            id="chatInputField" 
+            class="chat-input" 
+            placeholder="Type your scenario (e.g. 'I make $14k/mo with $650 debts, 745 credit score, buying a $780k home in Toronto with 10% down')..." 
+            autocomplete="off"
+          />
+          <button class="btn-send" id="btnSendMessage" title="Send message to agent" aria-label="Send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: Application Form, Lender Suggestions & Steve's Desk -->
+    <aside class="desk-pane" id="underwriterDeskPane" aria-label="Operations Console & Steve's Underwriting Desk">
+      <!-- Tabs Navigation -->
+      <div class="tabs-nav" id="deskTabsNav">
+        <button class="tab-btn active" id="tabBtnApplication" data-tab="tabApplication">
+          <span>📝 Mortgage Application</span>
+        </button>
+        <button class="tab-btn" id="tabBtnSuggestions" data-tab="tabSuggestions">
+          <span>⭐ Suggested Lenders</span>
+          <span class="tab-badge" id="tabSuggestionsBadge">5</span>
+        </button>
+        <button class="tab-btn" id="tabBtnDossier" data-tab="tabDossier">
+          <span>📋 Steve's Desk</span>
+          <span class="tab-badge" id="tabDossierCount">2</span>
+        </button>
+        <button class="tab-btn" id="tabBtnMatrix" data-tab="tabMatrix">
+          <span>🏦 Canadian Rates Matrix</span>
+        </button>
+        <button class="tab-btn" id="tabBtnCalculator" data-tab="tabCalculator">
+          <span>🧮 OSFI Stress Simulator</span>
+        </button>
+        <button class="tab-btn" id="tabBtnTests" data-tab="tabTests">
+          <span>🧪 Diagnostics</span>
+        </button>
+        <button class="tab-btn" id="tabBtnVault" data-tab="tabVault">
+          <span>🔐 Vault & Underwriter</span>
+        </button>
+      </div>
+
+      <!-- Desk Tab Content Container -->
+      <div class="desk-content" id="deskContentContainer">
+
+        <!-- ================================================================= -->
+        <!-- TAB 1: INTERACTIVE CANADIAN MORTGAGE APPLICATION FORM -->
+        <!-- ================================================================= -->
+        <div class="tab-view active" id="tabApplicationView">
+          <div class="application-header-box">
+            <div class="app-header-title">
+              <span class="app-icon-badge">🍁</span>
+              <div>
+                <h3 style="font-size: 1.05rem; font-family: 'Outfit';">Canadian Digital Mortgage Application</h3>
+                <p style="font-size: 0.78rem; color: var(--text-muted);">
+                  Complete your Canadian mortgage intake. The AI engine automatically calculates CMHC insurance, tests OSFI B-20 qualifying rates, and suggests top institutional lenders matching your Equifax/TransUnion score.
+                </p>
+              </div>
+            </div>
+
+            <!-- Demo Pre-Fill Quick Buttons -->
+            <div class="demo-prefill-container">
+              <span class="prefill-label">⚡ Quick Demo Profiles:</span>
+              <div class="prefill-buttons-group">
+                <button type="button" class="btn-prefill" id="btnPrefillToronto" title="Load Toronto First-Time Buyer Profile (745 Equifax, $780k)">
+                  🍁 Toronto Prime
+                </button>
+                <button type="button" class="btn-prefill" id="btnPrefillVancouver" title="Load Vancouver Luxury Conventional Profile (780 Equifax, $1.25M)">
+                  🏔️ Vancouver Luxury
+                </button>
+                <button type="button" class="btn-prefill" id="btnPrefillCalgary" title="Load Calgary Self-Employed Profile (660 Score, $540k / EQ Bank)">
+                  🤠 Calgary BFS Alt
+                </button>
+                <button type="button" class="btn-prefill" id="btnPrefillMontreal" title="Load Montreal Smart Fixed Profile (710 Score, $480k / BMO)">
+                  ⚜️ Montreal Smart Fixed
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Application Form -->
+          <form id="mortgageApplicationForm" class="application-form" novalidate>
+            
+            <!-- SECTION 1: APPLICANT IDENTIFICATION & PROVINCE -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="section-step-num">1</span>
+                <h4>Borrower Identification & Canadian Province</h4>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="appFieldProvince" class="metric-label">Province / Jurisdiction *</label>
+                  <select id="appFieldProvince" class="chat-input form-select" required>
+                    <option value="ON" selected>🍁 Ontario (ON)</option>
+                    <option value="BC">🏔️ British Columbia (BC)</option>
+                    <option value="AB">🤠 Alberta (AB)</option>
+                    <option value="QC">⚜️ Quebec (QC)</option>
+                    <option value="PRAIRIES_ATLANTIC">🌊 Prairies & Atlantic Canada</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldName" class="metric-label">Full Legal Name *</label>
+                  <input type="text" id="appFieldName" class="chat-input" placeholder="e.g. Jordan Campbell" value="Jordan Campbell" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldDocType" class="metric-label">Primary Canadian Identification *</label>
+                  <select id="appFieldDocType" class="chat-input form-select" required>
+                    <option value="Driver's License & SIN">Driver's License & SIN</option>
+                    <option value="Canadian Passport & SIN">Canadian Passport & SIN</option>
+                    <option value="Permanent Resident (PR) Card">Permanent Resident (PR) Card</option>
+                    <option value="Provincial Photo Card">Provincial Photo ID Card</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldDocNumber" class="metric-label">ID / License Reference Number *</label>
+                  <input type="text" id="appFieldDocNumber" class="chat-input" placeholder="e.g. DL-C8412-90124" value="DL-C8412-90124" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldEmail" class="metric-label">Email Address *</label>
+                  <input type="email" id="appFieldEmail" class="chat-input" placeholder="jordan.campbell@fintech.ca" value="jordan.campbell@fintech.ca" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldPhone" class="metric-label">Phone Number *</label>
+                  <input type="tel" id="appFieldPhone" class="chat-input" placeholder="(416) 555-0194" value="(416) 555-0194" required />
+                </div>
+
+                <div class="form-group form-span-2">
+                  <label for="appFieldCity" class="metric-label">City / Municipality *</label>
+                  <input type="text" id="appFieldCity" class="chat-input" placeholder="Toronto, ON" value="Toronto" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: EMPLOYMENT & FINANCIAL PROFILE -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="section-step-num">2</span>
+                <h4>Employment Profile & Monthly Cash Flow</h4>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="appFieldEmployment" class="metric-label">Employment Classification *</label>
+                  <select id="appFieldEmployment" class="chat-input form-select" required>
+                    <option value="Permanent Full-Time Salaried">Permanent Full-Time Salaried</option>
+                    <option value="Business-For-Self (BFS) / Incorporated">Business-For-Self (BFS) / Incorporated Contractor</option>
+                    <option value="Sole Proprietor / Commission">Sole Proprietor / Commission-Based</option>
+                    <option value="Retired / Pension / Investment">Retired / Pension / Investment Income</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldEmploymentYears" class="metric-label">Tenure in Field / Line of Work (Years) *</label>
+                  <input type="number" id="appFieldEmploymentYears" class="chat-input" min="0" max="45" value="4" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldIncome" class="metric-label">
+                    Gross Monthly Income (<span class="currency-label-span">CAD $</span>) *
+                  </label>
+                  <input type="number" id="appFieldIncome" class="chat-input" min="1000" step="250" value="13500" required />
+                  <div class="field-hint" id="hintIncomeFormatted">$13,500 CAD / month ($162,000 / year)</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldDebts" class="metric-label">
+                    Monthly Debt Payments (Car, Loans, Credit Cards) (<span class="currency-label-span">CAD $</span>)
+                  </label>
+                  <input type="number" id="appFieldDebts" class="chat-input" min="0" step="50" value="650" />
+                  <div class="field-hint" id="hintDebtsFormatted">$650 CAD / month</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 3: EQUIFAX / TRANSUNION CREDIT SCORE -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="section-step-num">3</span>
+                <h4>Canadian Credit History (Equifax & TransUnion Beacon Score)</h4>
+              </div>
+
+              <div class="credit-score-input-container">
+                <div class="score-input-header">
+                  <div>
+                    <label for="appFieldCreditScoreSlider" class="metric-label" style="font-weight: 700;">
+                      Beacon Credit Score: <span id="appBureauNameDisplay">Equifax / TransUnion Canada</span>
+                    </label>
+                    <span style="font-size: 0.72rem; color: var(--text-dim);" id="appBureauScaleDisplay">(Scale: 300 - 900 points)</span>
+                  </div>
+                  <div class="live-score-badge" id="liveScoreTierBadge">
+                    <span id="liveScoreNum">745</span> • <span id="liveScoreTierName">Tier 2: Strong Prime</span>
+                  </div>
+                </div>
+
+                <input type="range" id="appFieldCreditScoreSlider" min="300" max="900" step="5" value="745" class="score-slider" />
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                  <span style="font-size: 0.72rem; color: var(--rose-400);">Rebuilding / Private (&lt;600)</span>
+                  <span style="font-size: 0.72rem; color: var(--amber-400);">Near-Prime / Alt-B (600-679)</span>
+                  <span style="font-size: 0.72rem; color: var(--cyan-400);">Standard Broker (680-749)</span>
+                  <span style="font-size: 0.72rem; color: var(--emerald-400); font-weight: 600;">Prime Big Six (750+)</span>
+                </div>
+
+                <p class="score-tier-explanation" id="liveScoreAdviceText">
+                  Strong credit standing. Qualifies for prime wholesale broker rates from First National and MCAP, and tier-one pricing from RBC, TD, and BMO.
+                </p>
+              </div>
+            </div>
+
+            <!-- SECTION 4: PROPERTY & FINANCING DETAILS -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span class="section-step-num">4</span>
+                <h4>Property & Mortgage Financing Terms</h4>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="appFieldPropertyType" class="metric-label">Property Type *</label>
+                  <select id="appFieldPropertyType" class="chat-input form-select" required>
+                    <option value="Condo Apartment">Condo Apartment</option>
+                    <option value="Single Family Detached">Single Family Detached</option>
+                    <option value="Semi-Detached">Semi-Detached</option>
+                    <option value="Townhouse">Townhouse</option>
+                    <option value="Duplex / Multi-Unit">Duplex / Triplex (2-4 Units)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldPropertyStatus" class="metric-label">Occupancy / Build Status *</label>
+                  <select id="appFieldPropertyStatus" class="chat-input form-select" required>
+                    <option value="Existing Home">Existing Home (Owner-Occupied)</option>
+                    <option value="New Construction">New Construction / Builder Pre-Con</option>
+                    <option value="Rental / Investment">Rental / Investment Property</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldPrice" class="metric-label">
+                    Purchase Price (<span class="currency-label-span">CAD $</span>) *
+                  </label>
+                  <input type="number" id="appFieldPrice" class="chat-input" min="50000" step="5000" value="780000" required />
+                  <div class="field-hint" id="hintPriceFormatted">$780,000 CAD</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldDownPayment" class="metric-label">
+                    Down Payment (<span class="currency-label-span">CAD $</span>) *
+                  </label>
+                  <input type="number" id="appFieldDownPayment" class="chat-input" min="5000" step="5000" value="78000" required />
+                  <div class="field-hint" id="hintDownFormatted">10.0% Down ($78,000 CAD) — High-Ratio CMHC Insured</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldLoanAmount" class="metric-label">
+                    Base Mortgage Amount (<span class="currency-label-span">CAD $</span>)
+                  </label>
+                  <input type="number" id="appFieldLoanAmount" class="chat-input" value="702000" readonly style="opacity: 0.85; background: rgba(30, 41, 59, 0.4);" />
+                  <div class="field-hint" id="hintLoanFormatted">$702,000 CAD (Total with CMHC: $723,762 CAD)</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="appFieldTermYears" class="metric-label">Amortization Period *</label>
+                  <select id="appFieldTermYears" class="chat-input form-select" required>
+                    <option value="25" selected>25 Years (Standard Canadian Max for Insured)</option>
+                    <option value="30">30 Years (Uninsured Conventional / 2024 FTHB New Build)</option>
+                    <option value="20">20 Years (Accelerated Equity)</option>
+                    <option value="15">15 Years (Rapid Payoff)</option>
+                  </select>
+                </div>
+
+                <div class="form-group form-span-2" style="display: flex; flex-direction: row; align-items: center; gap: 10px; background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 14px;">
+                  <input type="checkbox" id="appFieldFirstTimeBuyer" checked style="width: 18px; height: 18px; accent-color: var(--emerald-500); cursor: pointer;" />
+                  <div>
+                    <label for="appFieldFirstTimeBuyer" style="font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--text-main);">
+                      First-Time Home Buyer (FTHB) in Canada
+                    </label>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                      Qualifies for provincial Land Transfer Tax rebates (up to $4,000 ON / $8,000 BC) and 30-year amortizations on eligible new builds.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LIVE UNDERWRITING SUMMARY GAUGE BAR (OSFI & CMHC) -->
+            <div class="live-underwriting-gauge-bar" id="appLiveGaugeBar" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="gauge-stat">
+                <span class="gauge-stat-title">Estimated Monthly Payment</span>
+                <span class="gauge-stat-val" id="appLiveMonthlyPayment">$4,068 CAD</span>
+              </div>
+              <div class="gauge-stat">
+                <span class="gauge-stat-title">OSFI B-20 Stress Rate</span>
+                <span class="gauge-stat-val" id="appLiveStressRate" style="color: var(--amber-400);">6.69%</span>
+              </div>
+              <div class="gauge-stat">
+                <span class="gauge-stat-title">CMHC Default Insurance</span>
+                <span class="gauge-stat-val" id="appLiveCmhc">$21,762 CAD (3.10%)</span>
+              </div>
+              <div class="gauge-stat">
+                <span class="gauge-stat-title">Gross / Total Debt (GDS / TDS)</span>
+                <span class="gauge-stat-val metric-pill-ok" id="appLiveDti">34.2% / 39.0%</span>
+              </div>
+            </div>
+
+            <!-- FORM ACTIONS -->
+            <div class="form-actions-bar">
+              <button type="submit" class="btn-authorize" id="btnSubmitApplication" style="flex: 2; padding: 12px 20px; font-size: 0.92rem;">
+                <span>🚀 Evaluate Application & Suggest Canadian Lenders by Credit Score</span>
+              </button>
+              <button type="button" class="btn-conditions" id="btnSendDirectToSteve" style="flex: 1; padding: 12px 16px; font-size: 0.84rem;">
+                <span>📤 Route to Steve's Desk</span>
+              </button>
+            </div>
+            <div id="applicationSubmitNotice" style="font-size: 0.82rem; text-align: center; color: var(--emerald-400); min-height: 20px; margin-top: 6px;"></div>
+          </form>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: SUGGESTED LENDERS BASED ON CREDIT SCORE -->
+        <!-- ================================================================= -->
+        <div class="tab-view" id="tabSuggestionsView" style="display: none;">
+          <div class="suggestions-header-banner">
+            <div class="score-summary-card" id="suggestionsScoreSummaryCard">
+              <div class="score-circle-badge" id="suggCircleScore">
+                <span class="score-big-num" id="suggScoreValue">745</span>
+                <span class="score-sub-label">BEACON SCORE</span>
+              </div>
+              <div class="score-summary-details">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <span id="suggMarketFlag" style="font-size: 1.2rem;">🍁</span>
+                  <h3 id="suggTierHeading" style="font-size: 1.05rem; font-family: 'Outfit'; color: var(--emerald-400);">
+                    Tier 2: Strong Prime / Broker Standard
+                  </h3>
+                </div>
+                <p id="suggBureauDesc" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">
+                  Evaluated against <strong>Equifax & TransUnion Canada</strong> standards for <strong>Ontario (ON)</strong>.
+                </p>
+                <div style="display: flex; gap: 16px; font-size: 0.75rem; flex-wrap: wrap;">
+                  <span>🎯 Institutional Approval Likelihood: <strong id="suggApprovalProb" style="color: var(--emerald-400);">Very High (>90%)</strong></span>
+                  <span>🏠 Max CMHC Financing LTV: <strong id="suggMaxLtvAllowed">Up to 95.0% LTV</strong></span>
+                  <span>⚖️ Qualifying Stress Test: <strong id="suggQualifyingRateDisplay" style="color: var(--amber-400);">6.59% - 6.69%</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin: 14px 0 10px 0; display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="font-size: 0.92rem; font-family: 'Outfit'; color: var(--text-main);">
+              Canadian Institutional Lenders Matched to Your Credit Profile
+            </h4>
+            <span id="suggMatchesCount" style="font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;">
+              9 Institutions Analyzed
+            </span>
+          </div>
+
+          <!-- Dynamic List of Recommended Lenders -->
+          <div id="suggestedLendersContainer" class="suggested-lenders-list">
+            <!-- Cards injected via app.js -->
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: STEVE'S AUTHORIZATION COCKPIT & QUEUE -->
+        <!-- ================================================================= -->
+        <div class="tab-view" id="tabDossierView" style="display: none;">
+          <!-- Active Dossier Card -->
+          <div class="dossier-card" id="activeDossierCard">
+            <div class="dossier-header">
+              <div class="dossier-borrower">
+                <span class="dossier-id" id="dossierRefId">DOSSIER #MORT-CAN-1048</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span id="dossierMarketFlag" style="font-size: 1.1rem;">🍁</span>
+                  <h3 id="dossierBorrowerName">Jordan Campbell</h3>
+                </div>
+              </div>
+              <div id="dossierStatusBadge" class="status-badge status-pending">
+                ⏳ PENDING STEVE'S AUTHORIZATION
+              </div>
+            </div>
+
+            <!-- Underwriting Metric Gauges -->
+            <div class="metrics-grid">
+              <div class="metric-box">
+                <div class="metric-label">Loan-To-Value (LTV)</div>
+                <div class="metric-value metric-pill-ok" id="dossierLtvVal">90.0% (CMHC)</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">GDS / TDS Ratios</div>
+                <div class="metric-value metric-pill-ok" id="dossierDtiVal">34.2% / 39.0%</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Equifax Beacon Score</div>
+                <div class="metric-value metric-pill-ok" id="dossierCreditVal">745</div>
+              </div>
+            </div>
+
+            <!-- Selected Deal Summary -->
+            <div class="selected-deal-box" id="dossierDealBox">
+              <div class="deal-lender-title">
+                <span class="deal-lender-name" id="dossierLenderName">RBC Royal Bank — 5-Year Fixed Prime</span>
+                <span class="deal-rate-tag" id="dossierRateTag">4.69% Posted (6.69% Stress Test)</span>
+              </div>
+              <div class="deal-breakdown-row">
+                <span>Requested Base Loan</span>
+                <span id="dossierLoanAmountVal">$702,000 CAD (Total with CMHC: $723,762 CAD)</span>
+              </div>
+              <div class="deal-breakdown-row">
+                <span>Estimated Monthly Payment</span>
+                <span id="dossierTotalPaymentVal" style="font-weight: 700; color: var(--emerald-400);">$4,068 CAD / month</span>
+              </div>
+              <div class="deal-breakdown-row">
+                <span>Credit Bureau Verification</span>
+                <span id="dossierBureauName">Equifax & TransUnion Canada</span>
+              </div>
+            </div>
+
+            <!-- Steve's Authorization Action Center -->
+            <div class="authorization-action-center" id="authActionBox">
+              <div class="auth-header">
+                <span>✍️</span>
+                <h4>Authorized Human Underwriter Determination: Steve</h4>
+              </div>
+              <p class="auth-desc">
+                The AI Agent performed OSFI B-20 qualification and ranked lenders by credit score. In strict adherence to Canadian financial regulations and platform governance, final mortgage commitments can ONLY be issued by authorized human underwriter <strong>Steve</strong>.
+              </p>
+
+              <label for="officerNotesInput" class="metric-label">Underwriter Notes & Approval Conditions</label>
+              <textarea 
+                id="officerNotesInput" 
+                class="officer-notes-input" 
+                placeholder="Enter closing conditions, NOA verification, appraisal confirmation, or decline rationale..."
+              ></textarea>
+
+              <div class="auth-button-group">
+                <button class="btn-authorize" id="btnAuthorizeDeal" title="Grant Final Mortgage Approval as Authorized Officer">
+                  <span>✅ Grant Final Mortgage Approval</span>
+                </button>
+                <button class="btn-conditions" id="btnRequestConditions" title="Request Additional Conditions">
+                  <span>📝 Request Conditions (NOA / Gift)</span>
+                </button>
+                <button class="btn-decline" id="btnDeclineDeal" title="Decline Deal">
+                  <span>❌ Decline Deal</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Audit Log Table -->
+          <div class="audit-section">
+            <div class="audit-title">
+              <span>Steve's Underwriting Audit Trail & Regulatory Log</span>
+              <span id="auditCountLabel">2 Decisions Logged</span>
+            </div>
+            <table class="audit-table" id="auditTable">
+              <thead>
+                <tr>
+                  <th>Dossier Ref</th>
+                  <th>Applicant</th>
+                  <th>Decision</th>
+                  <th>Underwriter</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody">
+                <!-- Audit records injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: CANADIAN INSTITUTIONAL RATES MATRIX -->
+        <!-- ================================================================= -->
+        <div class="tab-view" id="tabMatrixView" style="display: none;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px; font-family: 'Outfit';">Canadian Institutional Mortgage Catalog & Rates Matrix</h3>
+          <div id="matrixDealsGrid" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Matrix cards rendered by JS -->
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: OSFI B-20 STRESS SIMULATOR & SENSITIVITY STUDIO -->
+        <!-- ================================================================= -->
+        <div class="tab-view" id="tabCalculatorView" style="display: none;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px; font-family: 'Outfit';">OSFI B-20 Qualifying Rate & Sensitivity Studio</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px;">
+                <span>Canadian Purchase Price:</span>
+                <span id="sliderPriceLabel" style="font-weight: 700; color: var(--emerald-400);">$780,000 CAD</span>
+              </div>
+              <input type="range" id="sliderPrice" min="200000" max="2500000" step="10000" value="780000" style="width: 100%;">
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px;">
+                <span>Down Payment (%):</span>
+                <span id="sliderDownLabel" style="font-weight: 700; color: var(--emerald-400);">10% ($78,000 CAD) — CMHC Insured</span>
+              </div>
+              <input type="range" id="sliderDown" min="5" max="50" step="1" value="10" style="width: 100%;">
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px;">
+                <span>Beacon Credit Score (Equifax / TransUnion):</span>
+                <span id="sliderCreditLabel" style="font-weight: 700; color: var(--cyan-400);">745 pts (Strong Prime)</span>
+              </div>
+              <input type="range" id="sliderCredit" min="300" max="900" step="5" value="745" style="width: 100%;">
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px;">
+                <span>Gross Monthly Income:</span>
+                <span id="sliderIncomeLabel" style="font-weight: 700; color: var(--emerald-400);">$13,500 CAD / month</span>
+              </div>
+              <input type="range" id="sliderIncome" min="3000" max="40000" step="250" value="13500" style="width: 100%;">
+            </div>
+
+            <button class="btn-authorize" id="btnApplyStudioToAgent" style="margin-top: 10px; width: 100%;">
+              <span>⚡ Apply Scenario to Agent & Refresh Lender Recommendations</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 6: IN-BROWSER DIAGNOSTICS & GUARDRAIL TESTING -->
+        <!-- ================================================================= -->
+        <div class="tab-view" id="tabTestsView" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h3 style="font-size: 1rem; font-family: 'Outfit'; margin-bottom: 2px;">Canadian Underwriting Diagnostics & Guardrails</h3>
+              <p style="font-size: 0.76rem; color: var(--text-muted);">Verifies OSFI B-20 qualifying rules, CMHC tiering, GDS/TDS calculations, and Steve's governance.</p>
+            </div>
+            <button class="btn-authorize" id="btnRunInBrowserTests" style="padding: 7px 16px; font-size: 0.8rem;">
+              <span>▶ Run Diagnostics</span>
+            </button>
+          </div>
+
+          <div id="testResultsSummary" style="background: rgba(30, 41, 59, 0.5); border: 1px solid var(--border-bright); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 0.82rem;">
+              <span id="testSummaryStatus" style="font-weight: 700; color: var(--cyan-400);">Ready to verify suite</span>
+            </div>
+            <div id="testCountsPill" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-dim);">
+              Click "Run Diagnostics"
+            </div>
+          </div>
+
+          <div id="testOutputList" style="display: flex; flex-direction: column; gap: 8px; max-height: 480px; overflow-y: auto;">
+            <!-- Tests rendered dynamically via app.js -->
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 7: VAULT & LICENSED UNDERWRITER CREDENTIALS -->
+        <!-- ================================================================= -->
+        <div class="tab-view" id="tabVaultView" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h3 style="font-size: 1rem; font-family: 'Outfit'; margin-bottom: 2px;">Credentials Vault & Underwriter Credentials</h3>
+              <p style="font-size: 0.76rem; color: var(--text-muted);">Configure authorized underwriter Steve's Canadian broker license and secure API connectivity.</p>
+            </div>
+            <div id="vaultEncryptionBadge" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.72rem; color: #34d399; font-weight: 600;">
+              <span>🔒 Windows DPAPI Active</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-bright); border-radius: var(--radius-sm); padding: 14px;">
+              <h4 style="font-size: 0.85rem; color: var(--emerald-400); margin-bottom: 10px; font-weight: 600;">👤 Authorized Human Underwriter: Steve</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label class="metric-label" for="settingOfficerName">Authorized Underwriter Name</label>
+                  <input type="text" id="settingOfficerName" class="chat-input" style="height: 36px; font-size: 0.82rem;" value="Steve" />
+                </div>
+                <div>
+                  <label class="metric-label" for="settingOfficerNmls">FSRA / BCFSA Canadian License ID</label>
+                  <input type="text" id="settingOfficerNmls" class="chat-input" style="height: 36px; font-size: 0.82rem;" value="FSRA-M19004812" />
+                </div>
+                <div>
+                  <label class="metric-label" for="settingOfficerTitle">Corporate Title</label>
+                  <input type="text" id="settingOfficerTitle" class="chat-input" style="height: 36px; font-size: 0.82rem;" value="Principal Mortgage Underwriter & Broker of Record" />
+                </div>
+                <div>
+                  <label class="metric-label" for="settingOfficerEmail">Official Corporate Email</label>
+                  <input type="email" id="settingOfficerEmail" class="chat-input" style="height: 36px; font-size: 0.82rem;" value="steve@canadianmortgage.ca" />
+                </div>
+              </div>
+            </div>
+
+            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-bright); border-radius: var(--radius-sm); padding: 14px;">
+              <h4 style="font-size: 0.85rem; color: var(--cyan-400); margin-bottom: 10px; font-weight: 600;">🔑 Institutional API Connections & Bureau Gateways</h4>
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                  <label class="metric-label" for="settingEquifaxKey">Equifax Canada Score Advantage Gateway</label>
+                  <input type="password" id="settingEquifaxKey" class="chat-input" style="height: 36px; font-size: 0.82rem;" placeholder="EQ-CA-••••••••••••••••" />
+                </div>
+                <div>
+                  <label class="metric-label" for="settingTransUnionKey">TransUnion Canada CreditVision API</label>
+                  <input type="password" id="settingTransUnionKey" class="chat-input" style="height: 36px; font-size: 0.82rem;" placeholder="TU-CA-••••••••••••••••" />
+                </div>
+                <div>
+                  <label class="metric-label" for="settingCmhcKey">CMHC emili / Sagen Automated Underwriting Gateway</label>
+                  <input type="password" id="settingCmhcKey" class="chat-input" style="height: 36px; font-size: 0.82rem;" placeholder="EMILI-••••••••••••••••" />
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-authorize" id="btnSaveVaultSettings" style="width: 100%;">
+              <span>💾 Save Encrypted Configuration to Local Secure Vault</span>
+            </button>
+            <div id="vaultSaveStatus" style="font-size: 0.78rem; text-align: center; color: var(--emerald-400); min-height: 18px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Script Includes -->
+  <script src="js/deals-data.js"></script>
+  <script src="js/mortgage-agent.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

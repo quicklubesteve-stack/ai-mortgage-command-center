@@ -1,0 +1,309 @@
+// Prisma Schema for AI Mortgage Command Center
+// Configured for local SQLite demonstration; structured for seamless PostgreSQL deployment.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Brokerage {
+  id            String                @id @default(cuid())
+  name          String
+  licenseNumber String
+  province      String                @default("ON")
+  address       String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  users         User[]
+  applications  MortgageApplication[]
+  lenderProducts LenderProduct[]
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String
+  role            String           @default("MORTGAGE_BROKER") // BORROWER, MORTGAGE_BROKER, INTERNAL_UNDERWRITER, BROKERAGE_ADMIN, PLATFORM_ADMIN
+  title           String?
+  licenseId       String?
+  brokerageId     String?
+  brokerage       Brokerage?       @relation(fields: [brokerageId], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  reviewDecisions ReviewDecision[]
+  auditEvents     AuditEvent[]
+}
+
+model Borrower {
+  id                  String                @id @default(cuid())
+  firstName           String
+  lastName            String
+  email               String
+  phone               String
+  province            String                @default("ON")
+  city                String                @default("Toronto")
+  isFirstTimeBuyer    Boolean               @default(false)
+  creditScoreEstimate Int?                  // Voluntarily supplied Equifax/TransUnion estimate (300-900)
+  coBorrowerName      String?
+  coBorrowerEmail     String?
+  coBorrowerIncome    Float?                @default(0)
+  coBorrowerCredit    Int?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  applications        MortgageApplication[]
+  incomeRecords       IncomeRecord[]
+  liabilities         Liability[]
+}
+
+model MortgageApplication {
+  id                      String                  @id @default(cuid())
+  referenceCode           String                  @unique // e.g., CAN-MORT-2026-101
+  brokerageId             String
+  brokerage               Brokerage               @relation(fields: [brokerageId], references: [id])
+  borrowerId              String
+  borrower                Borrower                @relation(fields: [borrowerId], references: [id])
+  purpose                 String                  @default("PURCHASE") // PURCHASE, REFINANCE, RENEWAL
+  stage                   String                  @default("INTAKE") // INTAKE, DOCUMENT_CHECK, QUALIFICATION, LENDER_COMPARISON, DRAFT_PACKAGE, HUMAN_REVIEW, INTERNALLY_REVIEWED, RETURNED_FOR_CORRECTION
+  statusBadge             String                  @default("PENDING HUMAN REVIEW")
+  requestedMortgageAmount Float
+  downPaymentAmount       Float
+  downPaymentSource       String                  @default("SAVINGS") // SAVINGS, FHSA_RRSP_HBP, GIFT_IMMEDIATE_FAMILY, SALE_OF_EXISTING_PROPERTY, EQUITY
+  existingMortgageBalance Float                   @default(0)
+  amortizationYears       Int                     @default(25)
+  termYears               Int                     @default(5)
+  ratePreference          String                  @default("FIXED") // FIXED, VARIABLE
+  paymentFrequency        String                  @default("MONTHLY") // MONTHLY, BIWEEKLY, ACCELERATED_BIWEEKLY
+  calculatedGds           Float?
+  calculatedTds           Float?
+  calculatedLtv           Float?
+  stressTestRate          Float?
+  estimatedMonthlyPayment Float?
+  insuranceRequired       Boolean                 @default(false)
+  insurancePremium        Float                   @default(0)
+  missingFieldsJson       String                  @default("[]")
+  scenarioPreset          String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  property                Property?
+  incomeRecords           IncomeRecord[]
+  liabilities             Liability[]
+  documents               Document[]
+  documentChecks          DocumentCheck[]
+  lenderMatches           LenderMatch[]
+  underwritingAssessment  UnderwritingAssessment?
+  reviewDecisions         ReviewDecision[]
+  submissionPackages      SubmissionPackage[]
+  auditEvents             AuditEvent[]
+}
+
+model Property {
+  id                   String              @id @default(cuid())
+  applicationId        String              @unique
+  application          MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  address              String
+  city                 String
+  province             String              @default("ON")
+  postalCode           String              @default("M5V 2T6")
+  propertyType         String              @default("DETACHED") // DETACHED, TOWNHOUSE, CONDO_APARTMENT, SEMI_DETACHED, DUPLEX
+  occupancy            String              @default("OWNER_OCCUPIED") // OWNER_OCCUPIED, OWNER_PLUS_RENTAL, SECOND_HOME
+  purchasePriceOrValue Float
+  annualPropertyTax    Float               @default(3600)
+  monthlyHeating       Float               @default(150)
+  monthlyCondoFees     Float               @default(0)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+}
+
+model IncomeRecord {
+  id               String              @id @default(cuid())
+  applicationId    String
+  application      MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  borrowerId       String?
+  borrower         Borrower?           @relation(fields: [borrowerId], references: [id])
+  employmentType   String              @default("SALARIED_FULL_TIME") // SALARIED_FULL_TIME, SELF_EMPLOYED_BFS, CONTRACT_HOURLY, COMMISSION, OTHER
+  employerName     String
+  jobTitle         String
+  yearsAtEmployer  Float               @default(3)
+  yearsInIndustry  Float               @default(5)
+  grossAmount      Float
+  frequency        String              @default("ANNUAL") // ANNUAL, MONTHLY, BIWEEKLY
+  annualizedAmount Float
+  otherIncomeType  String?             // RENTAL_OFFSET, BONUS_OVERTIME, NONE
+  otherMonthlyAmt  Float               @default(0)
+  isVerified       Boolean             @default(false)
+  createdAt        DateTime            @default(now())
+}
+
+model Liability {
+  id             String              @id @default(cuid())
+  applicationId  String
+  application    MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  borrowerId     String?
+  borrower       Borrower?           @relation(fields: [borrowerId], references: [id])
+  liabilityType  String              @default("CREDIT_CARD") // CREDIT_CARD, LINE_OF_CREDIT, STUDENT_LOAN, PERSONAL_INSTALLMENT, OTHER_OBLIGATION
+  creditorName   String
+  balance        Float               @default(0)
+  monthlyPayment Float               @default(0)
+  toBePaidOff    Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+}
+
+model Document {
+  id             String              @id @default(cuid())
+  applicationId  String
+  application    MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  category       String              // PAY_STUB, EMPLOYMENT_LETTER, TAX_NOA_T1, BANK_STATEMENT_DOWN_PAYMENT, PURCHASE_AGREEMENT, EXISTING_MORTGAGE_STATEMENT, GOVT_ID_PLACEHOLDER
+  fileName       String
+  fileSizeKb     Int                 @default(245)
+  mimeType       String              @default("application/pdf")
+  uploadedByRole String              @default("BORROWER")
+  isSampleDemo   Boolean             @default(true)
+  extractedData  String?             // JSON summary of demo-parsed fields for consistency comparison
+  uploadedAt     DateTime            @default(now())
+  documentChecks DocumentCheck[]
+}
+
+model DocumentCheck {
+  id                  String              @id @default(cuid())
+  applicationId       String
+  application         MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  documentId          String?
+  document            Document?           @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  category            String              // PAY_STUB, EMPLOYMENT_LETTER, TAX_NOA_T1, BANK_STATEMENT_DOWN_PAYMENT, PURCHASE_AGREEMENT, EXISTING_MORTGAGE_STATEMENT, GOVT_ID_PLACEHOLDER
+  title               String
+  requiredForPurpose  String              @default("ALL")
+  status              String              @default("PENDING_MANUAL_REVIEW") // VERIFIED_DEMO, PENDING_MANUAL_REVIEW, MISSING, INCONSISTENT
+  discrepancySeverity String              @default("NONE") // NONE, WARNING, BLOCKING
+  findingSummary      String
+  reviewerOverrideNote String?
+  checkedAt           DateTime            @default(now())
+}
+
+model LenderProduct {
+  id                  String        @id @default(cuid())
+  brokerageId         String?
+  brokerage           Brokerage?    @relation(fields: [brokerageId], references: [id])
+  code                String        @unique
+  lenderName          String
+  productName         String
+  lenderCategory      String        // PRIME_A_BANK, MONOLINE_WHOLESALE, CREDIT_UNION, ALT_A_NEAR_PRIME, EQUITY_SPECIALIST
+  rateType            String        @default("FIXED") // FIXED, VARIABLE
+  termYears           Int           @default(5)
+  maxAmortization     Int           @default(25)
+  illustrativeRatePct Float         // Clearly labeled illustrative example rate
+  minCreditScore      Int           @default(680)
+  maxGdsPct           Float         @default(39.0)
+  maxTdsPct           Float         @default(44.0)
+  maxLtvPct           Float         @default(95.0)
+  minLoanCad          Float         @default(100000)
+  maxLoanCad          Float         @default(1500000)
+  acceptsSelfEmployed Boolean       @default(true)
+  requiresInsured     Boolean       @default(false)
+  allowsRefinance     Boolean       @default(true)
+  stressTestRule      String        @default("OSFI_B20_STANDARD") // OSFI_B20_STANDARD, LENDER_CONTRACT_PLUS_2, ALT_FLEXIBLE
+  prepaymentPrivilege String        @default("15% Annual Lump Sum + 15% Payment Increase")
+  keyConditionsJson   String        @default("[]")
+  limitationsNote     String
+  policyEffectiveDate String        @default("2026-01-01")
+  isActive            Boolean       @default(true)
+  updatedAt           DateTime      @updatedAt
+  lenderMatches       LenderMatch[]
+}
+
+model LenderMatch {
+  id                       String              @id @default(cuid())
+  applicationId            String
+  application              MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  lenderProductId          String
+  lenderProduct            LenderProduct       @relation(fields: [lenderProductId], references: [id])
+  rankOrder                Int
+  fitScore                 Int                 // 0-100 illustrative fit index
+  fitStatus                String              // STRONG_FIT, CONDITIONAL_FIT, OUTSIDE_CRITERIA
+  estimatedMonthlyPayment  Float
+  stressTestMonthlyPayment Float
+  qualifyingRateUsed       Float
+  reasonsFitJson           String              @default("[]")
+  reasonsRiskOrMissJson    String              @default("[]")
+  missingConditionsJson    String              @default("[]")
+  humanReviewRequirement   String
+  isSelectedForPackage     Boolean             @default(false)
+  createdAt                DateTime            @default(now())
+}
+
+model UnderwritingAssessment {
+  id                        String              @id @default(cuid())
+  applicationId             String              @unique
+  application               MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  borrowerFinancialSummary  String
+  debtServiceSummary        String
+  propertyMortgageSummary   String
+  documentStatusSummary     String
+  riskFlagsJson             String              @default("[]") // Explainable risk flags
+  exceptionsAndMissingJson  String              @default("[]")
+  policyVsLenderNotes       String
+  humanReviewRecommendation String              // Never an approval/denial; always routes for human review
+  generatedByAgent          String              @default("Agent 4: Underwriting Support & Package Builder")
+  updatedAt                 DateTime            @updatedAt
+}
+
+model ReviewDecision {
+  id               String              @id @default(cuid())
+  applicationId    String
+  application      MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewerId       String?
+  reviewer         User?               @relation(fields: [reviewerId], references: [id])
+  reviewerName     String              @default("Steve (Senior Mortgage Broker & Underwriter)")
+  reviewerRole     String              @default("INTERNAL_UNDERWRITER")
+  action           String              // MARK_INTERNALLY_REVIEWED, REQUEST_MISSING_INFO, RETURN_FOR_CORRECTION, PREPARE_EXTERNAL_SUBMISSION
+  notes            String
+  conditionsJson   String              @default("[]")
+  disclaimerAck    Boolean             @default(true) // Confirms internal review is not a final lender approval
+  createdAt        DateTime            @default(now())
+}
+
+model SubmissionPackage {
+  id                  String              @id @default(cuid())
+  applicationId       String
+  application         MortgageApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  packageNumber       String              @unique
+  targetLenderName    String
+  targetProductName   String
+  packageStatus       String              @default("DRAFT_INTERNAL_ONLY") // DRAFT_INTERNAL_ONLY, INTERNALLY_REVIEWED, READY_FOR_FUTURE_SUBMISSION
+  summaryPayloadJson  String
+  includedDocsJson    String              @default("[]")
+  openExceptionsJson  String              @default("[]")
+  reviewerNotes       String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+model AuditEvent {
+  id            String               @id @default(cuid())
+  applicationId String?
+  application   MortgageApplication? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?                @relation(fields: [userId], references: [id])
+  actorName     String               // e.g., "Agent 1 (Intake)", "Steve (Internal Underwriter)"
+  actorRole     String
+  eventType     String               // INTAKE_SAVED, DOC_CHECK_RUN, QUALIFICATION_CALCULATED, PACKAGE_GENERATED, HUMAN_REVIEW_RECORDED, GUARDRAIL_ENFORCED
+  summary       String
+  metadataJson  String               @default("{}")
+  createdAt     DateTime             @default(now())
+}
+
+model DemoRequest {
+  id               String   @id @default(cuid())
+  fullName         String
+  workEmail        String
+  organizationName String
+  organizationType String   // MORTGAGE_BROKERAGE, CREDIT_UNION, MONOLINE_LENDER, FINANCIAL_INSTITUTION, INVESTOR
+  province         String   @default("ON")
+  teamSize         String   @default("5-20 brokers")
+  message          String?
+  status           String   @default("SAVED_LOCAL_DEMO")
+  createdAt        DateTime @default(now())
+}

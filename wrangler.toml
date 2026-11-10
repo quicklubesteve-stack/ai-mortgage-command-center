@@ -1,0 +1,10 @@
+name = "ai-mortgage-command-center"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "cf-dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ai-mortgage-db"
+database_id = "342ef1e9-b708-4885-8511-2441eea2d0f7"
+
